@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Azure OpenAI Chat</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .chat-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 420px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: #0078d7;
+      color: #fff;
+      padding: 12px 16px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #chatbox {
+      padding: 16px;
+      height: 320px;
+      overflow-y: auto;
+      background: #fafafa;
+      font-size: 14px;
+    }
+
+    .chat-message {
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    .chat-message strong {
+      color: #0078d7;
+    }
+
+    .chat-message.bot strong {
+      color: #444;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .chat-input button {
+      background: #0078d7;
+      border: none;
+      color: #fff;
+      padding: 0 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .chat-input button:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">Azure OpenAI Chat</div>
+    <div id="chatbox"></div>
+    <div class="chat-input">
+      <input type="text" id="message" placeholder="Type your message..." onkeydown="if(event.key==='Enter'){sendMessage();}" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("message");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatbox = document.getElementById("chatbox");
+      chatbox.innerHTML += `<p class="chat-message"><strong>You:</strong> ${message}</p>`;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        chatbox.innerHTML += `<p class="chat-message bot"><strong>Bot:</strong> ${data.reply}</p>`;
+      } catch (error) {
+        chatbox.innerHTML += `<p class="chat-message bot"><strong>Bot:</strong> Sorry, something went wrong.</p>`;
+      }
+
+      input.value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
